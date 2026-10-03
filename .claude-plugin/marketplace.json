@@ -1,0 +1,15 @@
+{
+  "name": "record-demo-kit",
+  "description": "Claude Code plugin that records a feature in your web app and renders a polished, branded demo video (MP4).",
+  "owner": {
+    "name": "Max Myers"
+  },
+  "plugins": [
+    {
+      "name": "record-demo",
+      "source": "./plugins/record-demo",
+      "description": "/record-demo: Playwright captures your app, HyperFrames renders a walkthrough, clip or launch film in your own brand (logo, colors, fonts).",
+      "version": "1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+/* Example brand — design tokens.
+ * This file is the brand contract: every color a demo may use lives here, and brand-lint rejects any other.
+ * Light set on :root (launch films), dark set on [data-theme="dark"] (walkthroughs and clips).
+ * To rebrand, change the VALUES; keep the variable NAMES (the builders reference them). */
+:root {
+  /* brand colors: accent = rings, CTAs, active states; alt-1 / alt-2 = the two secondary stripe colors;
+     ink = darkest text/shadow color; paper = lightest canvas color */
+  --brand-accent: #3b5bdb;
+  --brand-alt-1: #e8590c;
+  --brand-alt-2: #f59f00;
+  --brand-ink: #14161a;
+  --brand-paper: #f6f5f1;
+
+  --bg-page: #f6f5f1;
+  --bg-surface: #fdfdfb;
+  --bg-surface-2: #eeede8;
+  --border-default: #dcdad3;
+  --text-primary: #14161a;
+  --text-secondary: #5c5f66;
+  --text-tertiary: #8a8d93;
+  --text-accent: #3b5bdb;
+  --status-success: #2f9e44;
+  --accent-active: #3b5bdb;
+
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  --font-sans: "Poppins", system-ui, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0f1115;
+  --bg-surface: #181b21;
+  --bg-surface-2: #20242b;
+  --border-default: #2c313a;
+  --text-primary: #f6f5f1;
+  --text-secondary: #a3a7ae;
+  --text-tertiary: #6f747c;
+  --text-accent: #8da2fb;
+  --status-success: #51cf66;
+  --accent-active: #8da2fb;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "record-demo",
+  "description": "Record a feature in your web app and render a polished, branded demo video (walkthrough, clip or launch film) with Playwright + HyperFrames. Bring your own brand pack.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Max Myers"
+  },
+  "license": "MIT"
+}
