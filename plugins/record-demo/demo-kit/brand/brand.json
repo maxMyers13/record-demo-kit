@@ -1,0 +1,12 @@
+{
+  "name": "Example",
+  "logo": {
+    "dark": "logo-on-dark.svg",
+    "light": "logo-on-light.svg"
+  },
+  "mark": "mark.svg",
+  "stripes": {
+    "light": ["--brand-accent", "--brand-alt-1", "--brand-alt-2", "--brand-ink"],
+    "dark": ["--brand-accent", "--brand-alt-1", "--brand-alt-2", "--brand-paper"]
+  }
+}
