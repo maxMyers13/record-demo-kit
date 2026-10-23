@@ -2,6 +2,12 @@
 
 A [Claude Code](https://claude.com/claude-code) plugin that records a feature working in your web app and turns it into a polished demo video in **your** brand.
 
+<p align="center">
+  <a href="docs/demo.mp4"><img src="docs/demo.gif" width="360" alt="A launch-format demo video made with one /record-demo command"></a>
+</p>
+
+<p align="center"><sub>A <code>format=launch</code> video of a feedback form, made with one <code>/record-demo</code> command. <a href="docs/demo.mp4">Watch the MP4</a>.</sub></p>
+
 Playwright drives your real app and captures it; [HyperFrames](https://www.npmjs.com/package/hyperframes) renders the result with your logo, colors and fonts. Three formats:
 
 - **walkthrough** (default): 1920x1080 with a chapter rail, intro and outro. For PRs, team chat and hero videos.
@@ -60,4 +66,11 @@ You can also use the kit without Claude: see the scripts and worked examples in 
 
 ## License
 
-MIT. The bundled example fonts (Poppins, JetBrains Mono) are under the SIL Open Font License. GSAP is downloaded on first use under [GreenSock's license](https://gsap.com/standard-license), not redistributed here.
+MIT, see [`LICENSE`](LICENSE).
+
+Third-party files bundled in this repository keep their own licenses:
+
+- plugins/record-demo/demo-kit/brand/fonts/poppins-*.woff2 — SIL Open Font License 1.1 (fonts/OFL-Poppins.txt)
+- plugins/record-demo/demo-kit/brand/fonts/jetbrains-mono-latin.woff2 — SIL Open Font License 1.1 (fonts/OFL-JetBrainsMono.txt)
+
+GSAP is not included; the kit downloads it from jsDelivr on first use, under GreenSock's own license (https://gsap.com/standard-license).
