@@ -1,15 +1,18 @@
 {
   "name": "record-demo-kit",
-  "description": "Claude Code plugin that records a feature in your web app and renders a polished, branded demo video (MP4).",
+  "description": "Agent skill that records a feature in your web app and renders a polished, branded demo video (MP4). Works in Claude Code, Codex, Cursor, GitHub Copilot and Antigravity.",
   "owner": {
     "name": "Max Myers"
   },
   "plugins": [
     {
       "name": "record-demo",
-      "source": "./plugins/record-demo",
-      "description": "/record-demo: Playwright captures your app, HyperFrames renders a walkthrough, clip or launch film in your own brand (logo, colors, fonts).",
-      "version": "1.0.0"
+      "source": "./",
+      "strict": false,
+      "description": "record-demo: Playwright captures your app, HyperFrames renders a walkthrough, clip or launch film in your own brand (logo, colors, fonts).",
+      "version": "2.0.0",
+      "license": "MIT",
+      "skills": ["./skills/record-demo"]
     }
   ]
 }
