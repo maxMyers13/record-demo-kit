@@ -9,7 +9,7 @@ probe "${DEMO_KIT_DIR:-}"
 [ -z "${DEMO_KIT_NO_SELF:-}" ] && probe "$(cd "$(dirname "$0")/.." 2>/dev/null && pwd -P)"
 root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 for base in "$root" "$HOME"; do
-  for agent in .agents .claude .cursor .github .copilot .codex .gemini .gemini/config .gemini/antigravity .agent; do
+  for agent in .agents .claude .cursor .github .copilot .codex .gemini .gemini/config .gemini/antigravity .gemini/antigravity-ide .agent; do
     probe "$base/$agent/$S"
   done
 done

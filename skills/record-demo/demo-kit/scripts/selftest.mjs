@@ -32,7 +32,7 @@ if (failed) { console.log('selftest: prerequisites missing'); process.exit(1); }
 {
   const cwd = join(work, 'elsewhere'); mkdirSync(cwd);
   const K = 'skills/record-demo/demo-kit';
-  const layouts = { 'Claude Code plugin': `.claude/plugins/cache/record-demo-kit/record-demo/9.9.9/${K}`, 'Claude Code': `.claude/${K}`, 'Codex / shared': `.agents/${K}`, Cursor: `.cursor/${K}`, Copilot: `.copilot/${K}`, Antigravity: `.gemini/config/${K}`, 'Antigravity (older)': `.gemini/antigravity/${K}`, 'Gemini CLI': `.gemini/${K}` };
+  const layouts = { 'Claude Code plugin': `.claude/plugins/cache/record-demo-kit/record-demo/9.9.9/${K}`, 'Claude Code': `.claude/${K}`, 'Codex / shared': `.agents/${K}`, Cursor: `.cursor/${K}`, Copilot: `.copilot/${K}`, Antigravity: `.gemini/config/${K}`, 'Antigravity (older)': `.gemini/antigravity/${K}`, 'Antigravity IDE': `.gemini/antigravity-ide/${K}`, 'Gemini CLI': `.gemini/${K}` };
   let n = 0;
   for (const [agent, rel] of Object.entries(layouts)) {
     const home = join(work, `home${n++}`), dir = join(home, rel);

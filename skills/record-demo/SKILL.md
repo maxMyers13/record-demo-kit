@@ -29,7 +29,7 @@ Argument forms: `<feature or route> [format=walkthrough|clip|launch] [polish=on|
 1. **Find the demo kit.** It is the `demo-kit/` folder in the same directory as this SKILL.md. If you know the path this file was loaded from, set `DEMO_KIT_DIR` to that `demo-kit` folder first. The probe checks it, then every place an agent installs skills (project, then user), then a Claude Code plugin install; the first hit wins:
    ```bash
    KIT="${DEMO_KIT_DIR:-}"; R="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; S=skills/record-demo/demo-kit
-   for b in "$R" "$HOME"; do for a in .agents .claude .cursor .github .copilot .codex .gemini .gemini/config .gemini/antigravity .agent; do
+   for b in "$R" "$HOME"; do for a in .agents .claude .cursor .github .copilot .codex .gemini .gemini/config .gemini/antigravity .gemini/antigravity-ide .agent; do
      [ -z "$KIT" ] && [ -f "$b/$a/$S/kit.json" ] && KIT="$b/$a/$S"; done; done
    [ -z "$KIT" ] && KIT="$(find "$HOME/.claude/plugins/cache/record-demo-kit" -path "*/$S/kit.json" 2>/dev/null | sort -V | tail -1 | xargs -I{} dirname {})"
    [ -z "$KIT" ] && [ -f "$R/$S/kit.json" ] && KIT="$R/$S"
