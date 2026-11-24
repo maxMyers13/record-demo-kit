@@ -27,14 +27,24 @@ const enc = run('ffmpeg', ['-hide_banner', '-encoders']);
 ok(enc.status === 0 && /libx264/.test(enc.stdout), 'ffmpeg with libx264');
 if (failed) { console.log('selftest: prerequisites missing'); process.exit(1); }
 
-// 1 resolver (plugin-user simulation: cwd elsewhere, only the plugin cache layout present; then nothing present)
+// 1 resolver (cwd elsewhere; the kit is found wherever an agent installed the skill; then nothing present).
+// DEMO_KIT_NO_SELF stops the resolver from answering with the kit this selftest runs from.
 {
-  const home = join(work, 'home'), cache = join(home, '.claude/plugins/cache/record-demo-kit/record-demo/9.9.9/demo-kit');
-  mkdirSync(cache, { recursive: true }); writeFileSync(join(cache, 'kit.json'), '{}');
-  const env = { PATH: process.env.PATH, HOME: home }; const cwd = join(work, 'elsewhere'); mkdirSync(cwd);
-  const r1 = run('bash', [join(S, 'resolve-kit.sh')], { env, cwd });
-  ok(r1.status === 0 && r1.stdout.trim().endsWith('record-demo/9.9.9/demo-kit'), `resolver finds the plugin-cache kit from an unrelated cwd (${r1.stdout.trim().slice(-40)})`);
-  const r2 = run('bash', [join(S, 'resolve-kit.sh')], { env: { PATH: process.env.PATH, HOME: join(work, 'empty') }, cwd });
+  const cwd = join(work, 'elsewhere'); mkdirSync(cwd);
+  const K = 'skills/record-demo/demo-kit';
+  const layouts = { 'Claude Code plugin': `.claude/plugins/cache/record-demo-kit/record-demo/9.9.9/${K}`, 'Claude Code': `.claude/${K}`, 'Codex / shared': `.agents/${K}`, Cursor: `.cursor/${K}`, Copilot: `.copilot/${K}`, Antigravity: `.gemini/config/${K}`, 'Antigravity (older)': `.gemini/antigravity/${K}`, 'Antigravity IDE': `.gemini/antigravity-ide/${K}`, 'Gemini CLI': `.gemini/${K}` };
+  let n = 0;
+  for (const [agent, rel] of Object.entries(layouts)) {
+    const home = join(work, `home${n++}`), dir = join(home, rel);
+    mkdirSync(dir, { recursive: true }); writeFileSync(join(dir, 'kit.json'), '{}');
+    const r = run('bash', [join(S, 'resolve-kit.sh')], { env: { PATH: process.env.PATH, HOME: home, DEMO_KIT_NO_SELF: '1' }, cwd });
+    ok(r.status === 0 && r.stdout.trim().endsWith(rel), `resolver finds a ${agent} install from an unrelated cwd`);
+  }
+  const proj = join(work, 'proj'), projKit = join(proj, '.agents', K);
+  mkdirSync(projKit, { recursive: true }); writeFileSync(join(projKit, 'kit.json'), '{}');
+  const rp = run('bash', [join(S, 'resolve-kit.sh')], { env: { PATH: process.env.PATH, HOME: join(work, 'empty'), DEMO_KIT_NO_SELF: '1' }, cwd: proj });
+  ok(rp.status === 0 && rp.stdout.trim().endsWith(`.agents/${K}`), 'resolver finds a project-level install');
+  const r2 = run('bash', [join(S, 'resolve-kit.sh')], { env: { PATH: process.env.PATH, HOME: join(work, 'empty'), DEMO_KIT_NO_SELF: '1' }, cwd });
   ok(r2.status === 1, 'resolver exits 1 when no kit exists (skill then falls back to polish=off)');
 }
 

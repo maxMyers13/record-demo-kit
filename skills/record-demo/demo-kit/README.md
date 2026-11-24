@@ -22,7 +22,7 @@ A brand pack is a folder:
 
 The kit uses, first hit wins: `$DEMO_BRAND_DIR` → `~/.config/record-demo/brand` → the neutral example pack in `brand/`.
 
-**Make your own:** `node scripts/init-brand.mjs --name "Acme"` copies the example to `~/.config/record-demo/brand` (plugin updates never touch it). Edit it, then run `node scripts/selftest.mjs --quick`: the self-test builds and lints against your pack.
+**Make your own:** `node scripts/init-brand.mjs --name "Acme"` copies the example to `~/.config/record-demo/brand` (updates to the skill never touch it). Edit it, then run `node scripts/selftest.mjs --quick`: the self-test builds and lints against your pack.
 
 **Token contract** (`tokens.css`):
 - Brand: `--brand-accent` (rings, CTAs, active states), `--brand-alt-1`, `--brand-alt-2` (secondary stripe colors), `--brand-ink` (darkest; text and shadows on light), `--brand-paper` (lightest; canvas on light)
@@ -56,7 +56,7 @@ See `frame.md` for the visual design spec.
 | `scripts/brand.mjs` | loads the active brand pack, stages it and GSAP into a project |
 | `scripts/brand-lint.mjs` | palette / fonts / logo / offline rules |
 | `scripts/init-brand.mjs` | copies the example brand pack to start your own |
-| `scripts/resolve-kit.sh` | locates this directory from the plugin cache, a marketplace checkout or a clone |
+| `scripts/resolve-kit.sh` | locates this directory wherever an agent installed the skill (Claude Code, Codex, Cursor, Copilot, Antigravity, Gemini CLI), or in a clone |
 | `scripts/selftest.mjs` | end-to-end proof with synthetic footage |
 | `examples/` | `walkthrough.demo.json` + `walkthrough-capture.example.cjs` (1 seat, beats), `two-seat.demo.json` (2 seats, picture-in-picture), `feature.clip.json` + `clip-capture.example.cjs`, `feature.launch.json` + `launch-capture.example.cjs`. Selectors are placeholders for an imaginary "team invites" feature |
 

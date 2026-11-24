@@ -1,11 +1,17 @@
 ---
-description: Record a feature in your web app and deliver a polished, branded demo video (walkthrough, clip or launch film, MP4)
-argument-hint: <feature or route> [format=walkthrough|clip|launch] [polish=on|off] [seats=1|2] [url=<base url>] [for PR #<n>]
+name: record-demo
+description: Record a feature working in the user's web app and deliver a polished, branded demo video (MP4) - a walkthrough, a zoomed clip or a launch film. Playwright captures the real UI and HyperFrames renders it with the user's logo, colors and fonts. Use when asked to record a demo, a walkthrough, a screen recording of a feature, a launch video, or a video for a PR, changelog or social post.
+license: MIT
+compatibility: Any coding agent that can run shell commands and read image files (Claude Code, Codex, Cursor, GitHub Copilot, Antigravity, Gemini CLI). Needs macOS or Linux, Node 22+, ffmpeg with libx264, and Playwright in the app's repo.
+metadata:
+  version: "2.0.0"
 ---
 
 # Record Demo — record a feature in your web app, deliver a polished, branded walkthrough (MP4)
 
-Produce a shareable recording of a feature working in the user's web app. **The standard is a polished demo: Playwright captures the real UI, then the plugin's demo kit renders it with HyperFrames in the user's brand (logo, colors, fonts from their brand pack, plus a chapter rail).** Supporting files live in the plugin's **demo kit** (`demo-kit/`); find it with the probe in Preflight, never by hardcoding a path.
+Produce a shareable recording of a feature working in the user's web app. **The standard is a polished demo: Playwright captures the real UI, then the demo kit renders it with HyperFrames in the user's brand (logo, colors, fonts from their brand pack, plus a chapter rail).** Supporting files live in the **demo kit**: the `demo-kit/` folder beside this file. Find it with the probe in Preflight, never by hardcoding a path.
+
+This skill is written for any coding agent. Where it names a capability (run a shell command, view an image, drive a browser), use whichever of your own tools does that. The request to record is whatever the user wrote when they invoked this skill; if they named no feature, ask which one.
 
 **MP4 is the only delivered format.** There is no GIF lane and no WebM deliverable. If an engine produces an intermediate (Playwright's `.webm`), it is transient and must be converted and deleted in the same step — never attached, never left on disk.
 
@@ -20,15 +26,19 @@ Argument forms: `<feature or route> [format=walkthrough|clip|launch] [polish=on|
 
 ## Preflight (run first, once)
 
-1. **Find the demo kit** (`${CLAUDE_PLUGIN_ROOT}` is not set in Bash, so probe; the first hit wins):
+1. **Find the demo kit.** It is the `demo-kit/` folder in the same directory as this SKILL.md. If you know the path this file was loaded from, set `DEMO_KIT_DIR` to that `demo-kit` folder first. The probe checks it, then every place an agent installs skills (project, then user), then a Claude Code plugin install; the first hit wins:
    ```bash
-   KIT=""; for d in "${DEMO_KIT_DIR:-}" "$(ls -1d "$HOME"/.claude/plugins/cache/record-demo-kit/record-demo/*/demo-kit 2>/dev/null | sort -V | tail -1)" \
-       "$HOME/.claude/plugins/marketplaces/record-demo-kit/plugins/record-demo/demo-kit" "$(git rev-parse --show-toplevel 2>/dev/null)/plugins/record-demo/demo-kit"; do
-     [ -n "$d" ] && [ -f "$d/kit.json" ] && KIT="$(cd "$d" && pwd -P)" && break; done; echo "KIT=${KIT:-none}"
+   KIT="${DEMO_KIT_DIR:-}"; R="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; S=skills/record-demo/demo-kit
+   for b in "$R" "$HOME"; do for a in .agents .claude .cursor .github .copilot .codex .gemini .gemini/config .gemini/antigravity .gemini/antigravity-ide .agent; do
+     [ -z "$KIT" ] && [ -f "$b/$a/$S/kit.json" ] && KIT="$b/$a/$S"; done; done
+   [ -z "$KIT" ] && KIT="$(find "$HOME/.claude/plugins/cache/record-demo-kit" -path "*/$S/kit.json" 2>/dev/null | sort -V | tail -1 | xargs -I{} dirname {})"
+   [ -z "$KIT" ] && [ -f "$R/$S/kit.json" ] && KIT="$R/$S"
+   [ -n "$KIT" ] && [ -f "$KIT/kit.json" ] && KIT="$(cd "$KIT" && pwd -P)" || KIT=""; echo "KIT=${KIT:-none}"
    ```
+   Shell variables may not survive between your commands: re-set `KIT` (to the printed path) in each later command that uses it.
 2. **Check the toolchain:** `node -v` ≥ 22, `ffmpeg -encoders | grep libx264`, `curl` present. `playwright` must resolve from the app's repo (`node -e "require('playwright')"` there); if not, tell the user and offer `npm i -D playwright && npx playwright install chromium` (it changes their repo: ask first). First polish run downloads the pinned HyperFrames CLI + headless Chrome (~150 MB, cached) and GSAP — say so before starting.
 3. **Brand pack:** `node -e "import('$KIT/scripts/brand.mjs').then(b=>console.log(b.brandDir()))"`. If it prints the kit's own `brand/` folder, the user has no brand pack yet and the video will carry the neutral **Example** brand. Tell them once, and offer to set theirs up: `node "$KIT/scripts/init-brand.mjs" --name "<Company>"` creates `~/.config/record-demo/brand`; then replace the logo SVGs, set the colors in `tokens.css` and the fonts in `fonts.css` + `fonts/` (see `$KIT/README.md` "Brand packs"), and run `node "$KIT/scripts/selftest.mjs" --quick`. Don't block on it.
-4. If the kit is missing or a check fails: print ONE line `⚠️ polish=off: <reason>` (e.g. `kit not found — run /plugin marketplace update record-demo-kit`), set `polish=off`, and continue with the raw capture. Do not stop the task.
+4. If the kit is missing or a check fails: print ONE line `⚠️ polish=off: <reason>` (e.g. `kit not found — reinstall with: npx skills add maxMyers13/record-demo-kit`), set `polish=off`, and continue with the raw capture. Do not stop the task.
 5. `node "$KIT/scripts/selftest.mjs" --quick` proves the kit on a new machine (synthetic footage, no app); run it when polish fails or a brand pack changed, not every time.
 
 ## Steps
@@ -70,8 +80,8 @@ Argument forms: `<feature or route> [format=walkthrough|clip|launch] [polish=on|
 6. **Polish (default).** Skip only for `polish=off`. **`format=clip`: follow 6c instead; `format=launch`: follow 6L instead.**
    1. **Detect beats:** `node "$KIT/scripts/detect-beats.mjs" --marks <raw>/marks.json --video main=<raw>/main.mp4 [--video guest=…] --out beats.json`. It fails loudly if flashes and beats don't pair up — fix the capture script, don't hand-edit. **Why beats:** Playwright's video clock drifts ~9% against wall-clock, so script timestamps cannot be used to cut.
    2. **Prepare:** `node "$KIT/scripts/build-demo.mjs" --spec demo.json --beats beats.json --project ~/Documents/Demos/projects/<feature> --stage prepare`. This generates the HyperFrames project, runs `hyperframes check` (0 issues required) and `brand-lint` (brand palette / fonts / logo) and takes chapter snapshots. Exit ≠ 0 means fix the spec or capture, not "ship anyway".
-   3. **LOOK before rendering.** Open every `contactSheets` image from the prepare output with the Read tool. Check: footage is the right moment in each chapter (no spinners or blank pages), rail text matches what's on screen, no dev widgets/real emails/tokens visible, the brand logo shows on intro/outro/header. A chapter that shows a page still loading → widen its window or re-record that page as a standalone `file` segment. Fix and re-run prepare.
-   4. **Render:** `node "$KIT/scripts/build-demo.mjs" --spec demo.json --project ~/Documents/Demos/projects/<feature> --stage render --out ~/Documents/Demos/features/<feature>-walkthrough.mp4`. Then `ffprobe` it (1920x1080, duration within the standard) and view one frame from the final file.
+   3. **LOOK before rendering.** Open every `contactSheets` image from the prepare output and look at it yourself (the tool you use to read or view an image file). If you cannot view images, do not claim the frames were checked: give the user the contact-sheet paths, ask them to look, and say so in the report. Check: footage is the right moment in each chapter (no spinners or blank pages), rail text matches what's on screen, no dev widgets/real emails/tokens visible, the brand logo shows on intro/outro/header. A chapter that shows a page still loading → widen its window or re-record that page as a standalone `file` segment. Fix and re-run prepare.
+   4. **Render:** `node "$KIT/scripts/build-demo.mjs" --spec demo.json --beats beats.json --project ~/Documents/Demos/projects/<feature> --stage render --out ~/Documents/Demos/features/<feature>-walkthrough.mp4`. Then `ffprobe` it (1920x1080, duration within the standard) and view one frame from the final file.
    5. On any polish failure, print `⚠️ polish=off: <reason>` and deliver the raw MP4: copy `~/Documents/Demos/projects/<feature>/raw/main.mp4` to `~/Documents/Demos/features/<feature>-walkthrough.mp4`. For `seats=2` deliver the primary seat's MP4.
    - `polish=off`: skip 6, copy the raw MP4 straight to the artifact path.
    - **Delete the throwaway capture script** after the artifact is safe and any required PR comment is verified.
@@ -111,11 +121,9 @@ DELIVERY: <where it is, or PR comment URL, or the exact blocker/manual step>
 ```
 
 ## Limits worth knowing
-- **Headless bots** with no download budget should run `/record-demo polish=off`; a person can re-polish later from the saved spec.
+- **Headless bots** with no download budget should run this skill with `polish=off`; a person can re-polish later from the saved spec.
 - Playwright `context.setOffline()` cannot show a "reconnecting" state when the app has a peer-to-peer channel; demonstrate durability with a reload instead.
 - Headless browsers have no microphone: live transcription/dictation UI can't be demoed.
 - A page that loads right before the context closes may never reach its loaded state in the video; record it as its own short clip and use a `file` segment.
 
 Token discipline: background long runs (the Playwright script, the render) with a log and read only the tail; never dump raw playwright output or base64 frames; report final state only.
-
-Record the following: $ARGUMENTS
